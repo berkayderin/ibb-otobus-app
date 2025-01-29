@@ -17,7 +17,6 @@ export async function GET(request) {
 
 		const client = await soap.createClientAsync(url)
 
-		// Debug için mevcut metodları konsola yazdıralım
 		console.log('Mevcut SOAP metodları:', client.describe())
 
 		client.setSecurity(
@@ -28,7 +27,6 @@ export async function GET(request) {
 		)
 
 		try {
-			// Önce metodun varlığını kontrol edelim
 			if (!client.GetHatCalismaGunAsync) {
 				console.error('GetHatCalismaGunAsync metodu bulunamadı')
 				console.log('Mevcut metodlar:', Object.keys(client))
@@ -39,10 +37,10 @@ export async function GET(request) {
 			}
 
 			const [result] = await client.GetHatCalismaGunAsync({
-				hatKodu: hatKodu // parametre ismini küçük harfle deneyelim
+				hatKodu: hatKodu
 			})
 
-			console.log('SOAP yanıtı:', result) // Debug için yanıtı görelim
+			console.log('SOAP yanıtı:', result)
 
 			if (!result || !result.GetHatCalismaGun_jsonResult) {
 				return Response.json(

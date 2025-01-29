@@ -9,10 +9,11 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useDuraklar } from '@/features/queries/useTransportQueries'
 import { useState } from 'react'
+import { ErrorWithRetry } from './ErrorWithRetry'
 
 export function Duraklar() {
 	const [durakArama, setDurakArama] = useState('')
-	const { data: duraklar, isLoading, error } = useDuraklar()
+	const { data: duraklar, isLoading, error, refetch } = useDuraklar()
 
 	const filtreliDuraklar =
 		duraklar?.features?.filter(
@@ -39,7 +40,7 @@ export function Duraklar() {
 						<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
 					</div>
 				) : error ? (
-					<div className="p-4 text-destructive">{error.message}</div>
+					<ErrorWithRetry error={error} onRetry={refetch} />
 				) : duraklar?.features ? (
 					<div className="space-y-4">
 						<div className="flex gap-2">

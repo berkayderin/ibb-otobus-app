@@ -1,10 +1,8 @@
-// İBB API'sine HTTP istekleri için
 const BASE_URL =
 	'https://api.ibb.gov.tr/iett/UlasimAnaVeri/HatDurakGuzergah.asmx'
 
 export async function GET(request) {
 	try {
-		// Hat kodunu query string'den al
 		const { searchParams } = new URL(request.url)
 		const hatKodu = searchParams.get('hatKodu')
 
@@ -18,7 +16,6 @@ export async function GET(request) {
 			)
 		}
 
-		// Hat bilgileri için SOAP isteği
 		const hatSoapBody = `<?xml version="1.0" encoding="utf-8"?>
 			<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tem="http://tempuri.org/">
 				<soapenv:Header>
@@ -34,7 +31,6 @@ export async function GET(request) {
 				</soapenv:Body>
 			</soapenv:Envelope>`
 
-		// Hat bilgilerini al
 		const hatResponse = await fetch(BASE_URL, {
 			method: 'POST',
 			headers: {
@@ -50,7 +46,6 @@ export async function GET(request) {
 
 		const hatText = await hatResponse.text()
 
-		// SOAP yanıtından JSON kısmını çıkar
 		const hatJsonMatch = hatText.match(
 			/<GetHat_jsonResult>(.*?)<\/GetHat_jsonResult>/s
 		)

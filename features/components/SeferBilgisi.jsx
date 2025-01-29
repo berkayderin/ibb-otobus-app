@@ -6,12 +6,14 @@ import {
 } from '@/components/ui/card'
 import { Clock } from 'lucide-react'
 import { useSeferBilgisi } from '@/features/queries/useTransportQueries'
+import { ErrorWithRetry } from './ErrorWithRetry'
 
 export function SeferBilgisi({ hatKodu }) {
 	const {
 		data: seferBilgisi,
 		isLoading,
-		error
+		error,
+		refetch
 	} = useSeferBilgisi(hatKodu)
 
 	return (
@@ -28,7 +30,7 @@ export function SeferBilgisi({ hatKodu }) {
 						<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
 					</div>
 				) : error ? (
-					<div className="p-4 text-destructive">{error.message}</div>
+					<ErrorWithRetry error={error} onRetry={refetch} />
 				) : seferBilgisi ? (
 					<div className="space-y-4">
 						{seferBilgisi.map((sefer, index) => (

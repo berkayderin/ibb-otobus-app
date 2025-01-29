@@ -5,12 +5,14 @@ import {
 	CardContent
 } from '@/components/ui/card'
 import { useHatBilgisi } from '@/features/queries/useTransportQueries'
+import { ErrorWithRetry } from './ErrorWithRetry'
 
 export function HatBilgisi({ hatKodu }) {
 	const {
 		data: hatBilgisi,
 		isLoading,
-		error
+		error,
+		refetch
 	} = useHatBilgisi(hatKodu)
 
 	if (isLoading) {
@@ -26,13 +28,7 @@ export function HatBilgisi({ hatKodu }) {
 	}
 
 	if (error) {
-		return (
-			<Card className="border-destructive">
-				<CardContent className="p-4 text-destructive">
-					{error.message}
-				</CardContent>
-			</Card>
-		)
+		return <ErrorWithRetry error={error} onRetry={refetch} />
 	}
 
 	if (!hatBilgisi?.hat?.[0]) return null

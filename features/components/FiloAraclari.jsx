@@ -9,10 +9,16 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useFiloBilgisi } from '@/features/queries/useTransportQueries'
 import { useState } from 'react'
+import { ErrorWithRetry } from './ErrorWithRetry'
 
 export function FiloAraclari() {
 	const [filoArama, setFiloArama] = useState('')
-	const { data: filoBilgisi, isLoading, error } = useFiloBilgisi()
+	const {
+		data: filoBilgisi,
+		isLoading,
+		error,
+		refetch
+	} = useFiloBilgisi()
 
 	const filtreliFilo =
 		filoBilgisi?.features?.filter(
@@ -45,7 +51,7 @@ export function FiloAraclari() {
 						<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
 					</div>
 				) : error ? (
-					<div className="p-4 text-destructive">{error.message}</div>
+					<ErrorWithRetry error={error} onRetry={refetch} />
 				) : filoBilgisi?.features ? (
 					<div className="space-y-4">
 						<div className="flex gap-2">

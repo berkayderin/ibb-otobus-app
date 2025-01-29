@@ -6,9 +6,15 @@ import {
 } from '@/components/ui/card'
 import { Bell } from 'lucide-react'
 import { useDuyurular } from '@/features/queries/useTransportQueries'
+import { ErrorWithRetry } from './ErrorWithRetry'
 
 export function Duyurular() {
-	const { data: duyurular, isLoading, error } = useDuyurular()
+	const {
+		data: duyurular,
+		isLoading,
+		error,
+		refetch
+	} = useDuyurular()
 
 	return (
 		<Card className="md:col-span-2">
@@ -24,7 +30,7 @@ export function Duyurular() {
 						<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
 					</div>
 				) : error ? (
-					<div className="p-4 text-destructive">{error.message}</div>
+					<ErrorWithRetry error={error} onRetry={refetch} />
 				) : duyurular?.length > 0 ? (
 					<div className="max-h-[500px] overflow-y-auto space-y-4">
 						{duyurular.slice(0, 10).map((duyuru, index) => (
