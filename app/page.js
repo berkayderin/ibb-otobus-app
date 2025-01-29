@@ -42,8 +42,8 @@ export default function Home() {
 
 	return (
 		<div className="min-h-screen bg-gray-100 p-4">
-			<main className="container mx-auto max-w-7xl">
-				<Card className="mb-6">
+			<main className="container mx-auto max-w-7xl flex flex-col">
+				<Card className="mb-4">
 					<CardHeader>
 						<CardTitle className="flex items-center justify-between">
 							<div className="flex items-center gap-2">
@@ -81,16 +81,21 @@ export default function Home() {
 					</CardContent>
 				</Card>
 
-				{hatKodu && (
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-						<SeferBilgisi hatKodu={hatKodu} />
+				<div className="grid grid-cols-1 lg:grid-cols-2 gap-4 flex-1 min-h-0">
+					{hatKodu && (
+						<div className="lg:col-span-2 h-[400px]">
+							<SeferBilgisi hatKodu={hatKodu} />
+						</div>
+					)}
+					<div className="h-[400px]">
+						<Duraklar />
 					</div>
-				)}
-
-				<div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-					<Duraklar />
-					<FiloAraclari />
-					<Duyurular />
+					<div className="h-[400px]">
+						<FiloAraclari />
+					</div>
+					<div className="lg:col-span-2 h-[400px]">
+						<Duyurular />
+					</div>
 				</div>
 			</main>
 		</div>
