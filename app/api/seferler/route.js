@@ -27,30 +27,41 @@ export async function GET(request) {
 		)
 
 		try {
-			if (!client.GetHatCalismaGunAsync) {
-				console.error('GetHatCalismaGunAsync metodu bulunamadı')
-				console.log('Mevcut metodlar:', Object.keys(client))
-				return Response.json(
-					{ error: 'API metodu bulunamadı' },
-					{ status: 500 }
-				)
-			}
-
-			const [result] = await client.GetHatCalismaGunAsync({
-				hatKodu: hatKodu
+			const [result] = await client.GetHat_jsonAsync({
+				HatKodu: hatKodu
 			})
 
 			console.log('SOAP yanıtı:', result)
 
-			if (!result || !result.GetHatCalismaGun_jsonResult) {
+			if (!result || !result.GetHat_jsonResult) {
 				return Response.json(
 					{ error: 'Sefer bilgisi bulunamadı' },
 					{ status: 404 }
 				)
 			}
 
-			const seferler = JSON.parse(result.GetHatCalismaGun_jsonResult)
-			return Response.json(seferler)
+			try {
+				const hatlar = JSON.parse(result.GetHat_jsonResult)
+
+				// API yanıtını kontrol edelim
+				if (!Array.isArray(hatlar) || hatlar.length === 0) {
+					return Response.json(
+						{ error: 'Bu hat koduna ait bilgi bulunamadı' },
+						{ status: 404 }
+					)
+				}
+
+				return Response.json({ hat: hatlar })
+			} catch (parseError) {
+				console.error('JSON parse hatası:', parseError)
+				return Response.json(
+					{
+						error: 'Veri formatında hata',
+						details: parseError.message
+					},
+					{ status: 500 }
+				)
+			}
 		} catch (soapError) {
 			console.error('SOAP işlem hatası detayı:', soapError)
 			return Response.json(

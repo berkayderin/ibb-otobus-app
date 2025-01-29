@@ -31,36 +31,38 @@ export function SeferBilgisi({ hatKodu }) {
 					</div>
 				) : error ? (
 					<ErrorWithRetry error={error} onRetry={refetch} />
-				) : seferBilgisi ? (
+				) : seferBilgisi?.hat ? (
 					<div className="space-y-4">
-						{seferBilgisi.map((sefer, index) => (
+						{seferBilgisi.hat.map((hat, index) => (
 							<div key={index} className="p-4 border rounded-lg">
 								<div className="grid grid-cols-2 gap-4">
 									<div>
-										<p className="font-semibold mb-1">Çalışma Günü</p>
+										<p className="font-semibold mb-1">Hat Kodu</p>
+										<p className="text-sm">{hat.SHATKODU || '-'}</p>
+									</div>
+									<div>
+										<p className="font-semibold mb-1">Hat Adı</p>
+										<p className="text-sm">{hat.SHATADI || '-'}</p>
+									</div>
+									<div>
+										<p className="font-semibold mb-1">Sefer Süresi</p>
 										<p className="text-sm">
-											{sefer.CALISMA_GUNU || '-'}
+											{hat.SEFER_SURESI
+												? `${Math.floor(hat.SEFER_SURESI)} dk`
+												: '-'}
 										</p>
 									</div>
 									<div>
-										<p className="font-semibold mb-1">İlk Sefer</p>
+										<p className="font-semibold mb-1">Hat Uzunluğu</p>
 										<p className="text-sm">
-											{sefer.ILK_SEFER || '-'}
+											{hat.HAT_UZUNLUGU
+												? `${hat.HAT_UZUNLUGU.toFixed(2)} km`
+												: '-'}
 										</p>
 									</div>
 									<div>
-										<p className="font-semibold mb-1">Son Sefer</p>
-										<p className="text-sm">
-											{sefer.SON_SEFER || '-'}
-										</p>
-									</div>
-									<div>
-										<p className="font-semibold mb-1">
-											Sefer Aralığı
-										</p>
-										<p className="text-sm">
-											{sefer.SEFER_ARALIGI || '-'} dk
-										</p>
+										<p className="font-semibold mb-1">Tarife</p>
+										<p className="text-sm">{hat.TARIFE || '-'}</p>
 									</div>
 								</div>
 							</div>
