@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import {
 	Card,
 	CardHeader,
@@ -10,169 +10,76 @@ import {
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Search, Bus, MapPin, Bell, Clock, Truck } from 'lucide-react'
+import {
+	useHatBilgisi,
+	useSeferBilgisi,
+	useDuraklar,
+	useDuyurular,
+	useFiloBilgisi
+} from '@/features/queries/useTransportQueries'
 
 export default function Home() {
 	const [hatKodu, setHatKodu] = useState('')
-	const [hatBilgisi, setHatBilgisi] = useState(null)
-	const [seferBilgisi, setSeferBilgisi] = useState(null)
-	const [yukleniyor, setYukleniyor] = useState(false)
-	const [seferYukleniyor, setSeferYukleniyor] = useState(false)
-	const [hata, setHata] = useState(null)
-	const [seferHata, setSeferHata] = useState(null)
-	const [duraklar, setDuraklar] = useState([])
-	const [duyurular, setDuyurular] = useState([])
-	const [durakYukleniyor, setDurakYukleniyor] = useState(true)
-	const [duyuruYukleniyor, setDuyuruYukleniyor] = useState(true)
-	const [durakHata, setDurakHata] = useState(null)
-	const [duyuruHata, setDuyuruHata] = useState(null)
 	const [durakArama, setDurakArama] = useState('')
-	const [filtreliDuraklar, setFiltreliDuraklar] = useState([])
-	const [filoBilgisi, setFiloBilgisi] = useState(null)
-	const [filoYukleniyor, setFiloYukleniyor] = useState(true)
-	const [filoHata, setFiloHata] = useState(null)
 	const [filoArama, setFiloArama] = useState('')
-	const [filtreliFilo, setFiltreliFilo] = useState([])
 
-	useEffect(() => {
-		// Durakları getir
-		setDurakYukleniyor(true)
-		fetch('/api/duraklar')
-			.then((res) => res.json())
-			.then((data) => {
-				if (data.error) {
-					throw new Error(data.error)
-				}
-				setDuraklar(data.features || [])
-				setDurakHata(null)
-			})
-			.catch((err) => {
-				console.error('Duraklar yüklenirken hata:', err)
-				setDurakHata('Duraklar yüklenirken bir hata oluştu')
-			})
-			.finally(() => setDurakYukleniyor(false))
+	const {
+		data: hatBilgisi,
+		isLoading: hatYukleniyor,
+		error: hatHata
+	} = useHatBilgisi(hatKodu)
 
-		// Duyuruları getir
-		setDuyuruYukleniyor(true)
-		fetch('/api/duyurular')
-			.then((res) => res.json())
-			.then((data) => {
-				if (data.error) {
-					throw new Error(data.error)
-				}
-				setDuyurular(data || [])
-				setDuyuruHata(null)
-			})
-			.catch((err) => {
-				console.error('Duyurular yüklenirken hata:', err)
-				setDuyuruHata('Duyurular yüklenirken bir hata oluştu')
-			})
-			.finally(() => setDuyuruYukleniyor(false))
+	const {
+		data: seferBilgisi,
+		isLoading: seferYukleniyor,
+		error: seferHata
+	} = useSeferBilgisi(hatKodu)
 
-		// Filo bilgilerini getir
-		setFiloYukleniyor(true)
-		fetch('/api/filo')
-			.then((res) => res.json())
-			.then((data) => {
-				if (data.error) {
-					throw new Error(data.error)
-				}
-				setFiloBilgisi(data)
-				setFiltreliFilo(data.features || [])
-				setFiloHata(null)
-			})
-			.catch((err) => {
-				console.error('Filo bilgileri yüklenirken hata:', err)
-				setFiloHata('Filo bilgileri yüklenirken bir hata oluştu')
-			})
-			.finally(() => setFiloYukleniyor(false))
-	}, [])
+	const {
+		data: duraklar,
+		isLoading: durakYukleniyor,
+		error: durakHata
+	} = useDuraklar()
 
-	useEffect(() => {
-		// Durakları filtrele
-		if (duraklar.features) {
-			const filtrelenmis = duraklar.features.filter(
-				(durak) =>
-					durak.properties.SDURAKADI.toLowerCase().includes(
-						durakArama.toLowerCase()
-					) ||
-					durak.properties.ILCEADI.toLowerCase().includes(
-						durakArama.toLowerCase()
-					)
-			)
-			setFiltreliDuraklar(filtrelenmis)
-		}
+	const {
+		data: duyurular,
+		isLoading: duyuruYukleniyor,
+		error: duyuruHata
+	} = useDuyurular()
 
-		// Filo araçlarını filtrele
-		if (filoBilgisi?.features) {
-			const filtrelenmis = filoBilgisi.features.filter(
-				(arac) =>
-					arac.properties.Plaka?.toLowerCase().includes(
-						filoArama.toLowerCase()
-					) ||
-					'' ||
-					arac.properties.KapiNo?.toLowerCase().includes(
-						filoArama.toLowerCase()
-					) ||
-					'' ||
-					arac.properties.Operator?.toLowerCase().includes(
-						filoArama.toLowerCase()
-					) ||
-					'' ||
-					arac.properties.Garaj?.toLowerCase().includes(
-						filoArama.toLowerCase()
-					) ||
-					''
-			)
-			setFiltreliFilo(filtrelenmis)
-		}
-	}, [durakArama, duraklar, filoArama, filoBilgisi])
+	const {
+		data: filoBilgisi,
+		isLoading: filoYukleniyor,
+		error: filoHata
+	} = useFiloBilgisi()
 
-	const seferBilgisiGetir = async (kod) => {
-		if (!kod) return
+	const filtreliDuraklar =
+		duraklar?.features?.filter(
+			(durak) =>
+				durak.properties.SDURAKADI.toLowerCase().includes(
+					durakArama.toLowerCase()
+				) ||
+				durak.properties.ILCEADI.toLowerCase().includes(
+					durakArama.toLowerCase()
+				)
+		) || []
 
-		setSeferYukleniyor(true)
-		setSeferHata(null)
-
-		try {
-			const response = await fetch(`/api/seferler?HatKodu=${kod}`)
-			const data = await response.json()
-
-			if (!response.ok) {
-				throw new Error(data.error || 'Sefer bilgisi alınamadı')
-			}
-
-			setSeferBilgisi(data)
-		} catch (error) {
-			setSeferHata(error.message)
-		} finally {
-			setSeferYukleniyor(false)
-		}
-	}
-
-	const hatBilgisiGetir = async () => {
-		if (!hatKodu) return
-
-		setYukleniyor(true)
-		setHata(null)
-
-		try {
-			const response = await fetch(
-				`/api/hat-bilgisi?hatKodu=${hatKodu}`
-			)
-			const data = await response.json()
-
-			if (!response.ok) {
-				throw new Error(data.error || 'Bir hata oluştu')
-			}
-
-			setHatBilgisi(data)
-			await seferBilgisiGetir(hatKodu)
-		} catch (error) {
-			setHata(error.message)
-		} finally {
-			setYukleniyor(false)
-		}
-	}
+	const filtreliFilo =
+		filoBilgisi?.features?.filter(
+			(arac) =>
+				arac.properties.Plaka?.toLowerCase().includes(
+					filoArama.toLowerCase()
+				) ||
+				arac.properties.KapiNo?.toLowerCase().includes(
+					filoArama.toLowerCase()
+				) ||
+				arac.properties.Operator?.toLowerCase().includes(
+					filoArama.toLowerCase()
+				) ||
+				arac.properties.Garaj?.toLowerCase().includes(
+					filoArama.toLowerCase()
+				)
+		) || []
 
 	return (
 		<div className="min-h-screen bg-gray-100 p-4">
@@ -195,18 +102,11 @@ export default function Home() {
 								}
 								className="flex-1"
 							/>
-							<Button
-								onClick={hatBilgisiGetir}
-								disabled={yukleniyor || !hatKodu}
-							>
-								<Search className="mr-2 h-4 w-4" />
-								Ara
-							</Button>
 						</div>
 					</CardContent>
 				</Card>
 
-				{yukleniyor && (
+				{hatYukleniyor && (
 					<Card>
 						<CardContent className="p-4">
 							<div className="flex items-center justify-center">
@@ -216,122 +116,117 @@ export default function Home() {
 					</Card>
 				)}
 
-				{hata && (
+				{hatHata && (
 					<Card className="border-destructive">
 						<CardContent className="p-4 text-destructive">
-							{hata}
+							{hatHata.message}
 						</CardContent>
 					</Card>
 				)}
 
-				{hatBilgisi &&
-					!yukleniyor &&
-					hatBilgisi.hat &&
-					hatBilgisi.hat[0] && (
-						<>
-							<Card className="mb-6">
-								<CardHeader>
-									<CardTitle>Hat Bilgileri</CardTitle>
-								</CardHeader>
-								<CardContent>
-									<div className="space-y-2">
-										<p>
-											<strong>Hat Kodu:</strong>{' '}
-											{hatBilgisi.hat[0].SHATKODU}
-										</p>
-										<p>
-											<strong>Hat Adı:</strong>{' '}
-											{hatBilgisi.hat[0].SHATADI}
-										</p>
-										<p>
-											<strong>Hat Türü:</strong>{' '}
-											{hatBilgisi.hat[0].TARIFE}
-										</p>
-										<p>
-											<strong>Hat Uzunluğu:</strong>{' '}
-											{hatBilgisi.hat[0].HAT_UZUNLUGU.toFixed(2)} km
-										</p>
-										<p>
-											<strong>Sefer Süresi:</strong>{' '}
-											{Math.floor(hatBilgisi.hat[0].SEFER_SURESI)}{' '}
-											dakika
-										</p>
-									</div>
-								</CardContent>
-							</Card>
+				{hatBilgisi?.hat?.[0] && (
+					<>
+						<Card className="mb-6">
+							<CardHeader>
+								<CardTitle>Hat Bilgileri</CardTitle>
+							</CardHeader>
+							<CardContent>
+								<div className="space-y-2">
+									<p>
+										<strong>Hat Kodu:</strong>{' '}
+										{hatBilgisi.hat[0].SHATKODU}
+									</p>
+									<p>
+										<strong>Hat Adı:</strong>{' '}
+										{hatBilgisi.hat[0].SHATADI}
+									</p>
+									<p>
+										<strong>Hat Türü:</strong>{' '}
+										{hatBilgisi.hat[0].TARIFE}
+									</p>
+									<p>
+										<strong>Hat Uzunluğu:</strong>{' '}
+										{hatBilgisi.hat[0].HAT_UZUNLUGU.toFixed(2)} km
+									</p>
+									<p>
+										<strong>Sefer Süresi:</strong>{' '}
+										{Math.floor(hatBilgisi.hat[0].SEFER_SURESI)}{' '}
+										dakika
+									</p>
+								</div>
+							</CardContent>
+						</Card>
 
-							{/* Sefer Bilgileri */}
-							<Card className="mb-6">
-								<CardHeader>
-									<CardTitle className="flex items-center gap-2">
-										<Clock className="h-6 w-6" />
-										<span>Sefer Bilgileri</span>
-									</CardTitle>
-								</CardHeader>
-								<CardContent>
-									{seferYukleniyor ? (
-										<div className="flex items-center justify-center p-4">
-											<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-										</div>
-									) : seferHata ? (
-										<div className="p-4 text-destructive">
-											{seferHata}
-										</div>
-									) : seferBilgisi ? (
-										<div className="space-y-4">
-											{seferBilgisi.map((sefer, index) => (
-												<div
-													key={index}
-													className="p-4 border rounded-lg"
-												>
-													<div className="grid grid-cols-2 gap-4">
-														<div>
-															<p className="font-semibold mb-1">
-																Çalışma Günü
-															</p>
-															<p className="text-sm">
-																{sefer.CALISMA_GUNU || '-'}
-															</p>
-														</div>
-														<div>
-															<p className="font-semibold mb-1">
-																İlk Sefer
-															</p>
-															<p className="text-sm">
-																{sefer.ILK_SEFER || '-'}
-															</p>
-														</div>
-														<div>
-															<p className="font-semibold mb-1">
-																Son Sefer
-															</p>
-															<p className="text-sm">
-																{sefer.SON_SEFER || '-'}
-															</p>
-														</div>
-														<div>
-															<p className="font-semibold mb-1">
-																Sefer Aralığı
-															</p>
-															<p className="text-sm">
-																{sefer.SEFER_ARALIGI || '-'} dk
-															</p>
-														</div>
+						<Card className="mb-6">
+							<CardHeader>
+								<CardTitle className="flex items-center gap-2">
+									<Clock className="h-6 w-6" />
+									<span>Sefer Bilgileri</span>
+								</CardTitle>
+							</CardHeader>
+							<CardContent>
+								{seferYukleniyor ? (
+									<div className="flex items-center justify-center p-4">
+										<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
+									</div>
+								) : seferHata ? (
+									<div className="p-4 text-destructive">
+										{seferHata.message}
+									</div>
+								) : seferBilgisi ? (
+									<div className="space-y-4">
+										{seferBilgisi.map((sefer, index) => (
+											<div
+												key={index}
+												className="p-4 border rounded-lg"
+											>
+												<div className="grid grid-cols-2 gap-4">
+													<div>
+														<p className="font-semibold mb-1">
+															Çalışma Günü
+														</p>
+														<p className="text-sm">
+															{sefer.CALISMA_GUNU || '-'}
+														</p>
+													</div>
+													<div>
+														<p className="font-semibold mb-1">
+															İlk Sefer
+														</p>
+														<p className="text-sm">
+															{sefer.ILK_SEFER || '-'}
+														</p>
+													</div>
+													<div>
+														<p className="font-semibold mb-1">
+															Son Sefer
+														</p>
+														<p className="text-sm">
+															{sefer.SON_SEFER || '-'}
+														</p>
+													</div>
+													<div>
+														<p className="font-semibold mb-1">
+															Sefer Aralığı
+														</p>
+														<p className="text-sm">
+															{sefer.SEFER_ARALIGI || '-'} dk
+														</p>
 													</div>
 												</div>
-											))}
-										</div>
-									) : (
-										<div className="p-4 text-center text-gray-500">
-											Sefer bilgisi bulunamadı
-										</div>
-									)}
-								</CardContent>
-							</Card>
-						</>
-					)}
+											</div>
+										))}
+									</div>
+								) : (
+									<div className="p-4 text-center text-gray-500">
+										Sefer bilgisi bulunamadı
+									</div>
+								)}
+							</CardContent>
+						</Card>
+					</>
+				)}
 
-				{/* Duraklar */}
 				<Card className="mb-6">
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
@@ -345,8 +240,10 @@ export default function Home() {
 								<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
 							</div>
 						) : durakHata ? (
-							<div className="p-4 text-destructive">{durakHata}</div>
-						) : duraklar.features ? (
+							<div className="p-4 text-destructive">
+								{durakHata.message}
+							</div>
+						) : duraklar?.features ? (
 							<div className="space-y-4">
 								<div className="flex gap-2">
 									<Input
@@ -422,7 +319,6 @@ export default function Home() {
 					</CardContent>
 				</Card>
 
-				{/* Filo Bilgileri */}
 				<Card className="mb-6">
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
@@ -436,7 +332,9 @@ export default function Home() {
 								<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
 							</div>
 						) : filoHata ? (
-							<div className="p-4 text-destructive">{filoHata}</div>
+							<div className="p-4 text-destructive">
+								{filoHata.message}
+							</div>
 						) : filoBilgisi?.features ? (
 							<div className="space-y-4">
 								<div className="flex gap-2">
@@ -515,7 +413,6 @@ export default function Home() {
 					</CardContent>
 				</Card>
 
-				{/* Duyurular */}
 				<Card>
 					<CardHeader>
 						<CardTitle className="flex items-center gap-2">
@@ -529,8 +426,10 @@ export default function Home() {
 								<div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
 							</div>
 						) : duyuruHata ? (
-							<div className="p-4 text-destructive">{duyuruHata}</div>
-						) : duyurular.length > 0 ? (
+							<div className="p-4 text-destructive">
+								{duyuruHata.message}
+							</div>
+						) : duyurular?.length > 0 ? (
 							<div className="max-h-[500px] overflow-y-auto space-y-4">
 								{duyurular.slice(0, 10).map((duyuru, index) => (
 									<div
