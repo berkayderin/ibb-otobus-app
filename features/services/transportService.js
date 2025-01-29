@@ -1,11 +1,3 @@
-export const getHatBilgisi = async (hatKodu) => {
-	const response = await fetch(`/api/hat-bilgisi?hatKodu=${hatKodu}`)
-	if (!response.ok) {
-		throw new Error('Hat bilgisi alınamadı')
-	}
-	return response.json()
-}
-
 export const getSeferBilgisi = async (hatKodu) => {
 	const response = await fetch(`/api/seferler?HatKodu=${hatKodu}`)
 	if (!response.ok) {

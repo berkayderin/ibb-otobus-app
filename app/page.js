@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Bus, RefreshCw } from 'lucide-react'
 import { useForm } from 'react-hook-form'
-import { HatBilgisi } from '@/features/components/HatBilgisi'
 import { SeferBilgisi } from '@/features/components/SeferBilgisi'
 import { Duraklar } from '@/features/components/Duraklar'
 import { FiloAraclari } from '@/features/components/FiloAraclari'
@@ -33,7 +32,6 @@ export default function Home() {
 	const handleRefreshAll = async () => {
 		setIsRefreshing(true)
 		await Promise.all([
-			queryClient.invalidateQueries({ queryKey: ['hatBilgisi'] }),
 			queryClient.invalidateQueries({ queryKey: ['seferBilgisi'] }),
 			queryClient.invalidateQueries({ queryKey: ['duraklar'] }),
 			queryClient.invalidateQueries({ queryKey: ['duyurular'] }),
@@ -85,7 +83,6 @@ export default function Home() {
 
 				{hatKodu && (
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-						<HatBilgisi hatKodu={hatKodu} />
 						<SeferBilgisi hatKodu={hatKodu} />
 					</div>
 				)}
