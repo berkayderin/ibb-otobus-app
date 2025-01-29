@@ -15,58 +15,61 @@ export async function GET(request) {
 			)
 		}
 
-		return new Promise((resolve, reject) => {
-			soap.createClient(url, (err, client) => {
-				if (err) {
-					console.error('SOAP client oluşturma hatası:', err)
-					return resolve(
-						Response.json(
-							{ error: 'Servis bağlantısında hata oluştu' },
-							{ status: 500 }
-						)
-					)
-				}
+		const client = await soap.createClientAsync(url)
 
-				client.setSecurity(
-					new soap.BasicAuthSecurity(
-						process.env.IBB_API_USERNAME,
-						process.env.IBB_API_PASSWORD
-					)
+		// Debug için mevcut metodları konsola yazdıralım
+		console.log('Mevcut SOAP metodları:', client.describe())
+
+		client.setSecurity(
+			new soap.BasicAuthSecurity(
+				process.env.IBB_API_USERNAME,
+				process.env.IBB_API_PASSWORD
+			)
+		)
+
+		try {
+			// Önce metodun varlığını kontrol edelim
+			if (!client.GetHatCalismaGunAsync) {
+				console.error('GetHatCalismaGunAsync metodu bulunamadı')
+				console.log('Mevcut metodlar:', Object.keys(client))
+				return Response.json(
+					{ error: 'API metodu bulunamadı' },
+					{ status: 500 }
 				)
+			}
 
-				const args = { HatKodu: hatKodu }
-				client.GetHatCalismaGun(args, (err, result) => {
-					if (err) {
-						console.error('Sefer bilgisi alma hatası:', err)
-						return resolve(
-							Response.json(
-								{ error: 'Sefer bilgisi alınamadı' },
-								{ status: 500 }
-							)
-						)
-					}
-
-					try {
-						const seferler = JSON.parse(
-							result.GetHatCalismaGun_jsonResult
-						)
-						resolve(Response.json(seferler))
-					} catch (parseError) {
-						console.error('JSON parse hatası:', parseError)
-						resolve(
-							Response.json(
-								{ error: 'Veri işlenirken hata oluştu' },
-								{ status: 500 }
-							)
-						)
-					}
-				})
+			const [result] = await client.GetHatCalismaGunAsync({
+				hatKodu: hatKodu // parametre ismini küçük harfle deneyelim
 			})
-		})
+
+			console.log('SOAP yanıtı:', result) // Debug için yanıtı görelim
+
+			if (!result || !result.GetHatCalismaGun_jsonResult) {
+				return Response.json(
+					{ error: 'Sefer bilgisi bulunamadı' },
+					{ status: 404 }
+				)
+			}
+
+			const seferler = JSON.parse(result.GetHatCalismaGun_jsonResult)
+			return Response.json(seferler)
+		} catch (soapError) {
+			console.error('SOAP işlem hatası detayı:', soapError)
+			return Response.json(
+				{
+					error: 'Sefer bilgisi alınamadı',
+					details: soapError.message || 'Bilinmeyen SOAP hatası'
+				},
+				{ status: 500 }
+			)
+		}
 	} catch (error) {
-		console.error('Genel hata:', error)
+		console.error('Genel hata detayı:', error)
 		return Response.json(
-			{ error: 'Bir hata oluştu' },
+			{
+				error: 'Bir hata oluştu',
+				details: error.message || 'Bilinmeyen hata'
+			},
 			{ status: 500 }
 		)
 	}
