@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Bus, RefreshCw } from 'lucide-react'
+import { Bus, RefreshCw, GithubIcon } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { SeferBilgisi } from '@/features/components/SeferBilgisi'
 import { Duraklar } from '@/features/components/Duraklar'
@@ -42,7 +42,7 @@ export default function Home() {
 
 	return (
 		<div className="min-h-screen bg-gray-100 p-4">
-			<main className="container mx-auto max-w-7xl flex flex-col">
+			<main className="container mx-auto max-w-7xl flex flex-col h-[calc(100vh-2rem)]">
 				<Card className="mb-4">
 					<CardHeader>
 						<CardTitle className="flex items-center justify-between">
@@ -50,20 +50,31 @@ export default function Home() {
 								<Bus className="h-6 w-6" />
 								<span>İETT Otobüs Takip</span>
 							</div>
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={handleRefreshAll}
-								className="gap-2"
-								disabled={isRefreshing}
-							>
-								<RefreshCw
-									className={cn('h-4 w-4', {
-										'animate-spin': isRefreshing
-									})}
-								/>
-								Tümünü Yenile
-							</Button>
+							<div className="flex items-center gap-4">
+								<a
+									href="https://github.com/berkayderin"
+									target="_blank"
+									rel="noopener noreferrer"
+									className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+								>
+									<GithubIcon className="h-4 w-4" />
+									<span>@berkayderin</span>
+								</a>
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={handleRefreshAll}
+									className="gap-2"
+									disabled={isRefreshing}
+								>
+									<RefreshCw
+										className={cn('h-4 w-4', {
+											'animate-spin': isRefreshing
+										})}
+									/>
+									Tümünü Yenile
+								</Button>
+							</div>
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
