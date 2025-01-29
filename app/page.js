@@ -17,11 +17,20 @@ import {
 	useDuyurular,
 	useFiloBilgisi
 } from '@/features/queries/useTransportQueries'
+import { useForm } from 'react-hook-form'
 
 export default function Home() {
-	const [hatKodu, setHatKodu] = useState('')
-	const [durakArama, setDurakArama] = useState('')
-	const [filoArama, setFiloArama] = useState('')
+	const { register, handleSubmit, watch, setValue } = useForm({
+		defaultValues: {
+			hatKodu: '',
+			durakArama: '',
+			filoArama: ''
+		}
+	})
+
+	const hatKodu = watch('hatKodu')
+	const durakArama = watch('durakArama')
+	const filoArama = watch('filoArama')
 
 	const {
 		data: hatBilgisi,
@@ -96,10 +105,10 @@ export default function Home() {
 							<Input
 								type="text"
 								placeholder="Hat kodunu giriniz (örn: 34AS)"
-								value={hatKodu}
-								onChange={(e) =>
-									setHatKodu(e.target.value.toUpperCase())
-								}
+								{...register('hatKodu', {
+									onChange: (e) =>
+										setValue('hatKodu', e.target.value.toUpperCase())
+								})}
 								className="flex-1"
 							/>
 						</div>
@@ -249,13 +258,12 @@ export default function Home() {
 									<Input
 										type="text"
 										placeholder="Durak adı veya ilçe ara..."
-										value={durakArama}
-										onChange={(e) => setDurakArama(e.target.value)}
+										{...register('durakArama')}
 										className="flex-1"
 									/>
 									<Button
 										variant="outline"
-										onClick={() => setDurakArama('')}
+										onClick={() => setValue('durakArama', '')}
 									>
 										Temizle
 									</Button>
@@ -341,13 +349,12 @@ export default function Home() {
 									<Input
 										type="text"
 										placeholder="Plaka, kapı no, garaj veya operatör ile ara..."
-										value={filoArama}
-										onChange={(e) => setFiloArama(e.target.value)}
+										{...register('filoArama')}
 										className="flex-1"
 									/>
 									<Button
 										variant="outline"
-										onClick={() => setFiloArama('')}
+										onClick={() => setValue('filoArama', '')}
 									>
 										Temizle
 									</Button>
