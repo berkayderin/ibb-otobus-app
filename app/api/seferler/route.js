@@ -19,13 +19,6 @@ export async function GET(request) {
 
 		console.log('Mevcut SOAP metodları:', client.describe())
 
-		client.setSecurity(
-			new soap.BasicAuthSecurity(
-				process.env.IBB_API_USERNAME,
-				process.env.IBB_API_PASSWORD
-			)
-		)
-
 		try {
 			const [result] = await client.GetHat_jsonAsync({
 				HatKodu: hatKodu

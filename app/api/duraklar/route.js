@@ -17,13 +17,6 @@ export async function GET() {
 					)
 				}
 
-				client.setSecurity(
-					new soap.BasicAuthSecurity(
-						process.env.IBB_API_USERNAME,
-						process.env.IBB_API_PASSWORD
-					)
-				)
-
 				const args = { DurakKodu: '' }
 				client.GetDurak_json(args, (err, result) => {
 					if (err) {

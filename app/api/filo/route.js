@@ -17,13 +17,6 @@ export async function GET() {
 					)
 				}
 
-				client.setSecurity(
-					new soap.BasicAuthSecurity(
-						process.env.IBB_API_USERNAME,
-						process.env.IBB_API_PASSWORD
-					)
-				)
-
 				client.GetFiloAracKonum_json({}, (err, result) => {
 					if (err) {
 						console.error('Filo bilgisi alma hatası:', err)
